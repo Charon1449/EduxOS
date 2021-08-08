@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+#
+# Phase 1: - Assign WKDIR variable the output of pwd
+#
+WKDIR="$(pwd)"
+#
+#
+# Phase 2: - Create the build staging folder
+#
+mkdir eznixOS
+#
+cd eznixOS
+#
+#
+# Phase 3: - Set up build environment
+#
+lb config --binary-images iso-hybrid --mode debian  --architectures i386 --linux-flavours 686-pae --distribution buster --archive-areas "main" --updates true --security true --cache true --apt-recommends true --apt-source-archives false --debian-installer live --debian-installer-gui true --win32-loader false --iso-application EduxOS --iso-volume EduxOS
+#
+#
+# Phase 4: - Install desktop and applications
+#
+#
+echo linux-image-686-pae xorg lxqt gcc firefox-esr libreoffice ipxe python3-tk python3-pil.imagetk gdebi galculator flac faad mjpegtools x265 x264 mpg321 ffmpeg  vlc  htop jfsutils xfsprogs ntfs-3g cdrskin inxi gnome-disk-utility remmina gnome-system-tools cifs-utils fuse gvfs-fuse gvfs-backends gvfs-bin pciutils squashfs-tools syslinux syslinux-common dosfstools isolinux live-build fakeroot menu build-essential dkms curl wget iftop apt-transport-https  neofetch  gnome-nettool > $WKDIR/eznixOS/config/package-lists/packages.list.chroot
+#
+echo grub-common grub2-common grub-pc-bin efibootmgr grub-efi-ia32 grub-efi-ia32-bin grub-efi-ia32-signed libefiboot1 libefivar1 mokutil shim-signed-common shim-unsigned > $WKDIR/eznixOS/config/package-lists/grubuefi.list.binary
+#
+# Uncomment below line for calamares installer
+echo calamares calamares-settings-debian > $WKDIR/eznixOS/config/package-lists/calamares.list.chroot
+#
+# Phase 5: - Make folders in the chroot
+#
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/eduxOS
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/etc/skel/.config
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/images/desktop-base
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/icons/default
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/local/bin
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/applications
+mkdir -p $WKDIR/eznixOS/config/hooks/normal
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/etc/skel/Desktop
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/lxqt/themes
+mkdir -p $WKDIR/eznixOS/config/includes.chroot/usr/share/icons
+#
+# Uncomment below line for calamares installer
+ mkdir -p $WKDIR/eznixOS/config/includes.chroot/etc/calamares/branding
+#
+#
+# Phase 6: - Copy files into the chroot
+#
+cp -r $WKDIR/eznix109/kernel_installation $WKDIR/eznixOS/config/includes.chroot/usr/share/eduxOS/kernel_installation
+cp $WKDIR/eznix109/apt/* $WKDIR/eznixOS/config/apt/
+cp -r $WKDIR/eznix109/bootloaders $WKDIR/eznixOS/config/bootloaders
+cp $WKDIR/eznix109/hooks/* $WKDIR/eznixOS/config/hooks/normal/
+cp -r $WKDIR/eznix109/debian $WKDIR/eznixOS/config/includes.chroot/usr/share/lxqt/themes/debian
+cp -r $WKDIR/eznix109/Papirus $WKDIR/eznixOS/config/includes.chroot/usr/share/icons/Papirus
+ln -s /usr/share/eduxOS/kernel_installation $WKDIR/eznixOS/config/includes.chroot/etc/skel/Desktop/
+cp $WKDIR/eznix109/launcher.desktop $WKDIR/eznixOS/config/includes.chroot/usr/share/applications/
+cp $WKDIR/eznix109/icons/* $WKDIR/eznixOS/config/includes.chroot/usr/share/icons/default/
+cp -r $WKDIR/eznix109/Application_pgm $WKDIR/eznixOS/config/includes.chroot/usr/share/eduxOS/Application_pgm
+#
+# Uncomment below three lines for calamares installer
+cp $WKDIR/eznix109/calamares/settings.conf $WKDIR/eznixOS/config/includes.chroot/etc/calamares/settings.conf
+cp $WKDIR/eznix109/calamares/usr/share/applications/install-debian.desktop $WKDIR/eznixOS/config/includes.chroot/usr/share/applications/install-debian.desktop
+cp -r $WKDIR/eznix109/calamares/branding/eznixos $WKDIR/eznixOS/config/includes.chroot/etc/calamares/branding/eznixos
+#
+#
+# Uncomment below line IF you wish to include deb packages from misc64 folder
+#cp $WKDIR/eznix109/misc64/* $WKDIR/eznixOS/config/packages.chroot/
+#
+#
+# Phase 7: - Start the build process
+#
+lb build
+
